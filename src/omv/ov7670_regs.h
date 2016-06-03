@@ -133,6 +133,8 @@
 #define MIDH                    0x1C  /* Manufacturer ID Byte – High */
 #define MIDL                    0x1D  /* Manufacturer ID Byte – Low */
 #define MVFP			0x3E  /* Mirror/Vflip Enable */
+#define MVFP_SET_MIRROR(r,x)	((r&0xDF)|((x&1)<<5)) /* change only bit5 according to x */
+#define MVFP_SET_FLIP(r,x)	((r&0xEF)|((x&1)<<4)) /* change only bit4 according to x */		
 #define LAEC                    0x1F  /* Fine AEC Value - defines exposure value less than one row period (Reserved?) */
 
 
@@ -264,8 +266,10 @@
 #define AWBCTR2	                0x6D /* AWB Control 2  */
 #define AWBCTR1                 0x6E /* AWB Control 1  */
 #define AWBCTR0                 0x6F /* AWB Control 0  */
-#define SCALING_XSC             0x70 /* test pattern  */
-#define SCALING_SC              0x71 /* test pattern  */
+#define SCALING_XSC             0x70 /* test pattern and horizontal scaling factor */
+#define SCALING_XSC_CBAR(r)	(r&0x7F) /* make sure bit7 is 0 for color bar */
+#define SCALING_YSC             0x71 /* test pattern and vertical scaling factor */
+#define SCALING_YSC_CBAR(r,x)	((r&0x7F)|((x&1)<<7)) /* change bit7 for color bar on/off */
 #define SCALING_DCWCTR          0x72 /* DCW control */
 #define SCALING_PCLK_DIV        0x73 /*  */
 #define REG74                   0x74 /*  */

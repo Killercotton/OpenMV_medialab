@@ -294,21 +294,41 @@ static int set_gainceiling(sensor_t *sensor, gainceiling_t gainceiling)
     return SCCB_Write(sensor->slv_addr, COM9, reg);
 }
 
-/*static int set_colorbar(sensor_t *sensor, int enable)
+static int set_colorbar(sensor_t *sensor, int enable)
 {
-    // Read register COM3
-    uint8_t reg = SCCB_Read(sensor->slv_addr, COM3);
+    uint8_t ret = 0;
+    // Read register scaling_xsc
+    uint8_t reg = SCCB_Read(sensor->slv_addr, SCALING_XSC);
 
-    // Set color bar on/off
-    reg = COM3_SET_CBAR(reg, enable);
+    // Pattern to set color bar bit[0]=0 in every case
+    reg = SCALING_XSC_CBAR(reg);
+	
+    // Write pattern to SCALING_XSC
+    ret = SCCB_Write(sensor->slv_addr, SCALING_XSC, reg);
+    
+    // Read register scaling_ysc
+    uint8_t reg = SCCB_Read(sensor->slv_addr, SCALING_YSC);
+
+    // Pattern to set color bar bit[0]=0 in every case
+    reg = SCALING_YSC_CBAR(reg,enable);
+	
+    // Write pattern to SCALING_YSC
+    ret = ret | SCCB_Write(sensor->slv_addr, SCALING_YSC, reg);
 
     // Set mirror on/off to pass self-tests
-    reg = COM3_SET_MIRROR(reg, enable);
+    // Read register MVFP
+    uint8_t reg = SCCB_Read(sensor->slv_addr, MVFP);
 
-    // Write back register COM3
-    return SCCB_Write(sensor->slv_addr, COM3, reg);
+    // Set mirror on/off
+    reg = MVFP_SET_MIRROR(reg, enable);
+
+    // Write back register MVFP
+    ret = ret | SCCB_Write(sensor->slv_addr, MVFP, reg);
+
+    // return 0 or 0xFF
+    return ret;
 }
-*/
+
 
 static int set_whitebal(sensor_t *sensor, int enable)
 {
@@ -346,33 +366,33 @@ static int set_exposure_ctrl(sensor_t *sensor, int enable)
     return SCCB_Write(sensor->slv_addr, COM8, reg);
 }
 
-/*
+
 static int set_hmirror(sensor_t *sensor, int enable)
 {
-    // Read register COM3
-    uint8_t reg = SCCB_Read(sensor->slv_addr, COM3);
+    // Read register MVFP
+    uint8_t reg = SCCB_Read(sensor->slv_addr, MVFP);
 
     // Set mirror on/off
-    reg = COM3_SET_MIRROR(reg, enable);
+    reg = MVFP_SET_MIRROR(reg, enable);
 
     // Write back register COM3
-    return SCCB_Write(sensor->slv_addr, COM3, reg);
+    return SCCB_Write(sensor->slv_addr, MVFP, reg);
 }
-*/
 
-/*
+
+
 static int set_vflip(sensor_t *sensor, int enable)
 {
-    // Read register COM3
-    uint8_t reg = SCCB_Read(sensor->slv_addr, COM3);
+    // Read register MVFP
+    uint8_t reg = SCCB_Read(sensor->slv_addr, MVFP);
 
     // Set mirror on/off
-    reg = COM3_SET_FLIP(reg, enable);
+    reg = MVFP_SET_FLIP(reg, enable);
 
     // Write back register COM3
-    return SCCB_Write(sensor->slv_addr, COM3, reg);
+    return SCCB_Write(sensor->slv_addr, MVFP, reg);
 }
-*/
+
 
 /*
 static int set_special_effect(sensor_t *sensor, sde_t sde)
@@ -407,12 +427,12 @@ int ov7670_init(sensor_t *sensor)
     sensor->set_brightness= set_brightness;
     sensor->set_saturation= set_saturation;
     sensor->set_gainceiling = set_gainceiling;
-    //sensor->set_colorbar = set_colorbar;
+    sensor->set_colorbar = set_colorbar;
     sensor->set_whitebal = set_whitebal;
     sensor->set_gain_ctrl = set_gain_ctrl;
     sensor->set_exposure_ctrl = set_exposure_ctrl;
-    //sensor->set_hmirror = set_hmirror;
-    //sensor->set_vflip = set_vflip;
+    sensor->set_hmirror = set_hmirror;
+    sensor->set_vflip = set_vflip;
     //sensor->set_special_effect = set_special_effect;
 
     // Set sensor flags
